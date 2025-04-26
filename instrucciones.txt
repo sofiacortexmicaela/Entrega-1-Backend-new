@@ -196,3 +196,263 @@ muestra cada producto nuevo , cada uno con su id -->creo 2 productos
 Hago get y devuelve el arreglo con los 2 productos creados recien y se estan guardando en el products.json
 
 si hago un get con la ruta localhost:3000/products/2 ---> devuelve el producto con el id:2
+
+
+
+
+ENTREGA N°1 
+
+1- cambiar el puerto a 8080 y crear archivos de rutas 
+2-organizar estructura del proyecto:
+
+src/
+  routes/               <-- Carpeta para los routers de Express
+    products.router.js  <-- Archivo para las rutas de productos
+    carts.router.js     <-- Archivo para las rutas de carritos
+  app.js                <-- Punto de entrada del servidor
+
+src/routes/products.router.js--------> define todas las rutas relacionadas con productos, como listar productos, agregar nuevos, etc.
+src/routes/carts.router.js-----------> define todas las rutas relacionadas con carritos, como crear carritos, listar productos en un carrito, etc.
+src/app.js---------------------------> archivo principal del servidor donde se inicializa Express y se usan los routers.
+
+3- crear router para productos
+
+Importar express para poder usar express.Router().
+Crear una instancia de router con express.Router().
+Definir rutas específicas, como GET / para listar productos y GET /:pid para obtener un producto por ID.
+Exportar el router para que pueda ser utilizado en el archivo principal (app.js).
+
+4- Crear un router para carritos
+En el archivo carts.router.js, repetí un procedimiento similar, pero ahora con las rutas relacionadas con los carritos.
+
+Importar express para usar express.Router().
+Crear una instancia de router.
+Definir rutas específicas, como POST / para crear un carrito y GET /:cid para obtener un carrito por ID.
+Exportar el router.
+
+
+5-Configurar los routers en app.js
+
+En el archivo principal (app.js)
+
+Importar express para iniciar el servidor.
+Importar los routers (products.router.js y carts.router.js).
+Usar el middleware express.json() para parsear cuerpos JSON.
+Vincular los routers a las rutas principales /api/products y /api/carts.
+
+
+
+6- Crear rutas para Manejo de Productos (/api/products/)
+GET /:
+Debe listar todos los productos de la base de datos.
+###
+// Ruta para obtener todos los productos
+router.get('/', (req, res) => {
+    try {
+        const products = productManager.getProducts();
+        res.json({ products });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener los productos.' });
+    }
+});
+###
+GET /:pid:
+Debe traer solo el producto con el id proporcionado.
+###
+// Ruta para obtener un producto por su ID
+router.get('/:pid', (req, res) => {
+    try {
+        const pid = parseInt(req.params.pid, 10); // Convertir el ID a número
+        const product = productManager.getProductById(pid); // Buscar el producto
+        res.json({ product });
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+});
+###
+POST /:
+Debe agregar un nuevo producto con los siguientes campos:
+id: Number/String (No se manda desde el body, se autogenera para asegurar que nunca se repitan los ids).
+
+title: String
+
+description: String
+
+code: String
+
+price: Number
+
+status: Boolean
+
+stock: Number
+
+category: String
+
+thumbnails: Array de Strings (rutas donde están almacenadas las imágenes del producto).
+###
+// Ruta para agregar un nuevo producto
+router.post('/', (req, res) => {
+    try {
+        const { title, description, code, price, status, stock, category, thumbnails } = req.body;
+
+        // Validar que los campos obligatorios estén presentes
+        if (!title || !description || !code || !price || !stock || !category) {
+            return res.status(400).json({ error: 'Todos los campos requeridos deben estar completos.' });
+        }
+
+        const newProduct = productManager.addProduct({
+            title,
+            description,
+            code,
+            price,
+            status: status !== undefined ? status : true, // Valor por defecto: true
+            stock,
+            category,
+            thumbnails: thumbnails || [], // Por defecto, un arreglo vacío
+        });
+
+        res.status(201).json(newProduct); // Devolver el producto creado
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+###
+
+PUT /:pid:
+Debe actualizar un producto por los campos enviados desde el body. No se debe actualizar ni eliminar el idal momento de hacer la actualización.
+###
+// Ruta para actualizar un producto existente
+router.put('/:pid', (req, res) => {
+    try {
+        const pid = parseInt(req.params.pid, 10);
+        const updateFields = req.body;
+
+        // Evitar la actualización del ID
+        if (updateFields.id) {
+            return res.status(400).json({ error: 'No se puede modificar el ID del producto.' });
+        }
+
+        const updatedProduct = productManager.updateProduct(pid, updateFields);
+        res.json({ updatedProduct });
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+});
+###
+
+DELETE /:pid:
+Debe eliminar el producto con el pid indicado.
+###
+// Ruta para eliminar un producto por su ID
+router.delete('/:pid', (req, res) => {
+    try {
+        const pid = parseInt(req.params.pid, 10);
+        productManager.deleteProduct(pid);
+        res.status(204).send(); // Sin contenido
+    } catch (error) {
+        res.status(404).json({ error: error.message });
+    }
+});
+###
+
+GET localhost:8080/api/products: Debería listar todos los productos.   URL: (localhost:8080/api/products)
+
+{
+    "products": []
+}
+
+GET /api/products/:pid: Debería devolver un producto por su ID.  URL: (http://localhost:8080/api/products/6)  --> si imprime el producto con el id 6
+
+
+POST /api/products: Debería agregar un nuevo producto.  --> sirve agregue 6 productos 
+
+PUT /api/products/:pid: Debería actualizar un producto existente. -----> si sirve cambie el producto con el id 6 y lo cambio, toco put pongo la url body->raw-> escribir productos que quiera eliminar
+
+DELETE /api/products/:pid: Debería eliminar un producto por su ID.  ---> si sirve borre el producto 6 
+
+Asegúrate de que los métodos en ProductManager (como getProducts, getProductById, addProduct, updateProduct y deleteProduct) estén implementados correctamente para que las rutas funcionen.
+
+
+
+7. crear Rutas para Manejo de Carritos (/api/carts/)
+
+POST /:
+Debe crear un nuevo carrito con la siguiente estructura:
+id: Number/String (Autogenerado para asegurar que nunca se dupliquen los ids).
+
+products: Array que contendrá objetos que representen cada producto.
+
+----------> si lo crea pongo el put y url : http://localhost:8080/api/carts
+ y devuelve : {
+    "id": 1,
+    "products": []
+}
+y se guardaron el carts.json
+
+
+GET /:cid:
+Debe listar los productos que pertenecen al carrito con el cid proporcionado.   url:http://localhost:8080/api/carts/1
+si sirve 
+
+
+POST /:cid/product/:pid:       ------->url: http://localhost:8080/api/carts/1/product/101 
+Debe agregar el producto al arreglo products del carrito seleccionado, utilizando el siguiente formato:
+product: Solo debe contener el ID del producto.
+
+quantity: Debe contener el número de ejemplares de dicho producto (se agregará de uno en uno).
+
+
+Si un producto ya existente intenta agregarse, se debe incrementar el campo quantity de dicho producto.
+
+bien me imprime: 
+{
+    "id": 1,
+    "products": [
+        {
+            "product": 101,
+            "quantity": 1
+        }
+    ]
+}
+
+Si vuelvo a enviar la misma solicitud, la cantidad del producto debería incrementarse:
+devuelve 
+{
+    "id": 1,
+    "products": [
+        {
+            "product": 101,
+            "quantity": 2
+        }
+    ]
+}
+
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------------------
+mi estructura de archivos se tiene que ver asi: 
+
+/product-manager
+   /node_modules
+   /src
+       app.js
+       /data
+            carts.json
+            products.json
+        /managers
+            CartManager.js
+            ProductManager.js
+        /routers
+            carts.router.js
+            products.router.js
+    instrucciones.txt
+    package-look.json 
+    package.json
+        
