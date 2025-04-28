@@ -1,7 +1,7 @@
-const express = require('express');
-const productsRouter = require('./routers/products.router');
-const cartsRouter = require('./routers/carts.router');
-
+import express from 'express'; // Importación de express
+import productsRouter from './routers/products.router.js'; // Importación de routers
+import cartsRouter from './routers/carts.router.js';
+ 
 const app = express();
 const port = 8080;
 
