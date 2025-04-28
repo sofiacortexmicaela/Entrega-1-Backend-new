@@ -200,6 +200,24 @@ si hago un get con la ruta localhost:3000/products/2 ---> devuelve el producto c
 
 
 
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 ENTREGA N°1 
 
 1- cambiar el puerto a 8080 y crear archivos de rutas 
@@ -242,8 +260,13 @@ Vincular los routers a las rutas principales /api/products y /api/carts.
 
 
 
+-----------------------------------------------------------------------------------------------------
+
+
+
 6- Crear rutas para Manejo de Productos (/api/products/)
-GET /:
+
+GET /:     <3     url---> http://localhost:8080/api/products 
 Debe listar todos los productos de la base de datos.
 ###
 // Ruta para obtener todos los productos
@@ -256,7 +279,9 @@ router.get('/', (req, res) => {
     }
 });
 ###
-GET /:pid:
+
+
+GET /:pid:   <3   url------>  http://localhost:8080/api/products/3
 Debe traer solo el producto con el id proporcionado.
 ###
 // Ruta para obtener un producto por su ID
@@ -270,7 +295,10 @@ router.get('/:pid', (req, res) => {
     }
 });
 ###
-POST /:
+
+
+
+POST /:    <3      url--------> http://localhost:8080/api/products 
 Debe agregar un nuevo producto con los siguientes campos:
 id: Number/String (No se manda desde el body, se autogenera para asegurar que nunca se repitan los ids).
 
@@ -289,100 +317,77 @@ stock: Number
 category: String
 
 thumbnails: Array de Strings (rutas donde están almacenadas las imágenes del producto).
-###
-// Ruta para agregar un nuevo producto
-router.post('/', (req, res) => {
-    try {
-        const { title, description, code, price, status, stock, category, thumbnails } = req.body;
 
-        // Validar que los campos obligatorios estén presentes
-        if (!title || !description || !code || !price || !stock || !category) {
-            return res.status(400).json({ error: 'Todos los campos requeridos deben estar completos.' });
-        }
-
-        const newProduct = productManager.addProduct({
-            title,
-            description,
-            code,
-            price,
-            status: status !== undefined ? status : true, // Valor por defecto: true
-            stock,
-            category,
-            thumbnails: thumbnails || [], // Por defecto, un arreglo vacío
-        });
-
-        res.status(201).json(newProduct); // Devolver el producto creado
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
-###
-
-PUT /:pid:
-Debe actualizar un producto por los campos enviados desde el body. No se debe actualizar ni eliminar el idal momento de hacer la actualización.
-###
-// Ruta para actualizar un producto existente
-router.put('/:pid', (req, res) => {
-    try {
-        const pid = parseInt(req.params.pid, 10);
-        const updateFields = req.body;
-
-        // Evitar la actualización del ID
-        if (updateFields.id) {
-            return res.status(400).json({ error: 'No se puede modificar el ID del producto.' });
-        }
-
-        const updatedProduct = productManager.updateProduct(pid, updateFields);
-        res.json({ updatedProduct });
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
-###
-
-DELETE /:pid:
-Debe eliminar el producto con el pid indicado.
-###
-// Ruta para eliminar un producto por su ID
-router.delete('/:pid', (req, res) => {
-    try {
-        const pid = parseInt(req.params.pid, 10);
-        productManager.deleteProduct(pid);
-        res.status(204).send(); // Sin contenido
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
-###
-
-GET localhost:8080/api/products: Debería listar todos los productos.   URL: (localhost:8080/api/products)
-
-{
-    "products": []
+--------> pruebo en postam,  con POST y ruta: http://localhost:8080/api/products  ,toco body y raw para el formatoJSON y escribo:{
+  "title": "Producto de prueba",
+  "description": "Descripción del producto de prueba",
+  "code": "PRD01",
+  "price": 100.50,
+  "status": true,
+  "stock": 20,
+  "category": "Categoría de prueba",
+  "thumbnails": [
+    "ruta/imagen1.jpg",
+    "ruta/imagen2.jpg"
+  ]
 }
 
-GET /api/products/:pid: Debería devolver un producto por su ID.  URL: (http://localhost:8080/api/products/6)  --> si imprime el producto con el id 6
+
+PUT /:pid:  <3       url-----> http://localhost:8080/api/products/1 
+Debe actualizar un producto por los campos enviados desde el body. No se debe actualizar ni eliminar el idal momento de hacer la actualización.
+toco body--> raw---> escribo: {
+  "title": "Producto actualizado",
+  "description": "Descripción actualizada del producto",
+  "price": 150.75,
+  "status": false,
+  "stock": 10,
+  "category": "Nueva categoría",
+  "thumbnails": [
+    "ruta/nueva-imagen1.jpg",
+    "ruta/nueva-imagen2.jpg"
+  ]
+}
+
+DELETE /:pid:   <3     url ----->  http://localhost:8080/api/products/1
+Debe eliminar el producto con el pid indicado.
+
+GET/     <3     url------------> localhost:8080/api/products
+Debería listar todos los productos.
+
+GET/:pid:     <3     url--------->  http://localhost:8080/api/products/2
+Debería devolver un producto por su ID
 
 
-POST /api/products: Debería agregar un nuevo producto.  --> sirve agregue 6 productos 
+POST /api/products  <3      -----> http://localhost:8080/api/products
+Debería agregar un nuevo producto.  
 
-PUT /api/products/:pid: Debería actualizar un producto existente. -----> si sirve cambie el producto con el id 6 y lo cambio, toco put pongo la url body->raw-> escribir productos que quiera eliminar
+PUT /api/products/:pid:   <3     url -----> http://localhost:8080/api/products/6
+ Debería actualizar un producto existente. 
+ si sirve cambie el producto con el id 6 y lo cambio, toco put pongo la url body->raw-> escribir productos que quiera eliminar
 
-DELETE /api/products/:pid: Debería eliminar un producto por su ID.  ---> si sirve borre el producto 6 
+DELETE /api/products/:pid:   <3    url -----> http://localhost:8080/api/products/6
+ Debería eliminar un producto por su ID.  ---> si sirve borre el producto 6 
 
-Asegúrate de que los métodos en ProductManager (como getProducts, getProductById, addProduct, updateProduct y deleteProduct) estén implementados correctamente para que las rutas funcionen.
+
+
+
+
+--------------------------------------------------------------------------------------------------
+
+
+
 
 
 
 7. crear Rutas para Manejo de Carritos (/api/carts/)
 
-POST /:
+POST /:  <3  ---> url  http://localhost:8080/api/carts
 Debe crear un nuevo carrito con la siguiente estructura:
 id: Number/String (Autogenerado para asegurar que nunca se dupliquen los ids).
 
 products: Array que contendrá objetos que representen cada producto.
 
-----------> si lo crea pongo el put y url : http://localhost:8080/api/carts
+----------> si lo crea pongo el post y url :
  y devuelve : {
     "id": 1,
     "products": []
@@ -390,12 +395,12 @@ products: Array que contendrá objetos que representen cada producto.
 y se guardaron el carts.json
 
 
-GET /:cid:
+GET /:cid:   <3
 Debe listar los productos que pertenecen al carrito con el cid proporcionado.   url:http://localhost:8080/api/carts/1
 si sirve 
 
 
-POST /:cid/product/:pid:       ------->url: http://localhost:8080/api/carts/1/product/101 
+POST /:cid/product/:pid:   <3    ------->url: http://localhost:8080/api/carts/1/product/101 
 Debe agregar el producto al arreglo products del carrito seleccionado, utilizando el siguiente formato:
 product: Solo debe contener el ID del producto.
 
@@ -426,6 +431,7 @@ devuelve
         }
     ]
 }
+
 
 
 
