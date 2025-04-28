@@ -1,8 +1,10 @@
-const express = require('express');
-const ProductManager = require('../managers/ProductManager'); // Importa ProductManager
+import express from 'express';
+import ProductManager from '../managers/ProductManager.js'; // Asegúrate de incluir la extensión .js
 
 const router = express.Router(); // Crear una instancia del router
 const productManager = new ProductManager('./products.json'); // Instancia del ProductManager
+
+ // Exporta el router para usarlo en otros archivos
 
 // Ruta para obtener todos los productos
 router.get('/', async (req, res) => {
@@ -90,4 +92,4 @@ router.delete('/:pid', async (req, res) => {
 });
 
 // Exportar el router
-module.exports = router;
+export default router;
